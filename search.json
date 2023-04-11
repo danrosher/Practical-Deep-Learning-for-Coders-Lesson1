@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "source\n\nfoo\n\n foo ()"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Practical-Deep-Learning-for-Coders-Lesson1",
+    "section": "",
+    "text": "This file will become your README and also the index of your documentation."
+  },
+  {
+    "objectID": "index.html#is-it-a-bird",
+    "href": "index.html#is-it-a-bird",
+    "title": "Practical-Deep-Learning-for-Coders-Lesson1",
+    "section": "Is it a bird",
+    "text": "Is it a bird\npip install Practical_Deep_Learning_for_Coders_Lesson1\n\nfrom fastbook import *\n\n\nurls = search_images_ddg('bird photos', max_images=1)\nlen(urls),urls[0]\n\n(1, 'http://www.birdwallpapers.com/wallpapers/bird-photos.jpg')\n\n\n\ndest=Path('bird.jpg')\ndownload_url(urls[0],dest,show_progress=False)\n\nPath('bird.jpg')\n\n\n\nim = Image.open(dest)\nim.to_thumb(256,256)\n\n\n\n\n\nsearches = 'forest','bird'\npath = Path('bird_or_not')\n\nfor o in searches:\n    dest = (path/o)\n    dest.mkdir(exist_ok=True, parents=True)\n    results = search_images_ddg(f'{o} photo',max_images=20)\n    download_images(dest, urls=results[:20])        \n    resize_images(dest, max_size=400, dest=dest)\n\n\nfailed = verify_images(get_image_files(path))\nfailed.map(Path.unlink)\n\n(#0) []\n\n\n\ndls = DataBlock(\n    blocks=(ImageBlock, CategoryBlock), \n    get_items=get_image_files, \n    splitter=RandomSplitter(valid_pct=0.2, seed=42),\n    get_y=parent_label,\n    item_tfms=[Resize(192, method='squish')]\n).dataloaders(path, bs=32)\n\ndls.show_batch(max_n=6)\n\n\n\n\n\nlearn = vision_learner(dls, resnet18, metrics=error_rate)\nlearn.fine_tune(3)\n\n\n\n\n\n\n\n  \n    \n      epoch\n      train_loss\n      valid_loss\n      error_rate\n      time\n    \n  \n  \n    \n      0\n      1.577089\n      2.165102\n      0.571429\n      00:01\n    \n  \n\n\n\n\n\n\n\n\n\n  \n    \n      epoch\n      train_loss\n      valid_loss\n      error_rate\n      time\n    \n  \n  \n    \n      0\n      1.055121\n      1.730857\n      0.571429\n      00:01\n    \n    \n      1\n      0.770361\n      0.968586\n      0.428571\n      00:01\n    \n    \n      2\n      0.525786\n      0.445994\n      0.285714\n      00:01\n    \n  \n\n\n\n\nis_bird,_,probs = learn.predict(PILImage.create('bird.jpg'))\nprint(f\"This is a: {is_bird}.\")\nprint(f\"Probability it's a bird: {probs[0]:.4f}\")\n\n\n\n\n\n\n\n\nThis is a: bird.\nProbability it's a bird: 1.0000"
+  }
+]
