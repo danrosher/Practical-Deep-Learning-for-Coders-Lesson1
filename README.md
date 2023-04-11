@@ -26,7 +26,55 @@ len(urls),urls[0]
 
 ``` python
 dest=Path('bird.jpg')
-download_url(urls[0],dest)
+download_url(urls[0],dest,show_progress=False)
+```
+
+    Path('bird.jpg')
+
+``` python
+im = Image.open(dest)
+im.to_thumb(256,256)
+```
+
+![](index_files/figure-commonmark/cell-5-output-1.png)
+
+``` python
+searches = 'forest','bird'
+path = Path('bird_or_not')
+
+if not path.exists():
+    for o in searches:
+        dest = (path/o)
+        dest.mkdir(exist_ok=True, parents=True)
+        results = search_images_ddg(f'{o} photo')
+        download_images(dest, urls=results[:200])        
+        resize_images(dest, max_size=400, dest=dest)
+```
+
+``` python
+failed = verify_images(get_image_files(path))
+failed.map(Path.unlink)
+```
+
+    (#35) [None,None,None,None,None,None,None,None,None,None...]
+
+``` python
+dls = DataBlock(
+    blocks=(ImageBlock, CategoryBlock), 
+    get_items=get_image_files, 
+    splitter=RandomSplitter(valid_pct=0.2, seed=42),
+    get_y=parent_label,
+    item_tfms=[Resize(192, method='squish')]
+).dataloaders(path, bs=32)
+
+dls.show_batch(max_n=6)
+```
+
+![](index_files/figure-commonmark/cell-8-output-1.png)
+
+``` python
+learn = vision_learner(dls, resnet18, metrics=error_rate)
+learn.fine_tune(3)
 ```
 
 <style>
@@ -44,18 +92,73 @@ download_url(urls[0],dest)
         background: #F44336;
     }
 </style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>error_rate</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.490227</td>
+      <td>0.029793</td>
+      <td>0.014925</td>
+      <td>00:05</td>
+    </tr>
+  </tbody>
+</table>
 
-    <div>
-      <progress value='303104' class='' max='295068' style='width:300px; height:20px; vertical-align: middle;'></progress>
-      102.72% [303104/295068 00:00&lt;00:00]
-    </div>
-    
-
-    Path('bird.jpg')
-
-``` python
-im = Image.open(dest)
-im.to_thumb(256,256)
-```
-
-![](index_files/figure-commonmark/cell-5-output-1.png)
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>error_rate</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.058664</td>
+      <td>0.000246</td>
+      <td>0.000000</td>
+      <td>00:06</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.034803</td>
+      <td>0.000772</td>
+      <td>0.000000</td>
+      <td>00:07</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.023400</td>
+      <td>0.000273</td>
+      <td>0.000000</td>
+      <td>00:07</td>
+    </tr>
+  </tbody>
+</table>
